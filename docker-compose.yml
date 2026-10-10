@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7-jammy
+    container_name: finledger-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - finledger-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: finledger-server
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/finledger
+      - JWT_SECRET=finledger_super_secret_jwt_key_2026_secure
+      - CLIENT_URL=http://localhost:3000
+    depends_on:
+      - mongo
+    networks:
+      - finledger-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: finledger-client
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    networks:
+      - finledger-network
+
+volumes:
+  mongo-data:
+
+networks:
+  finledger-network:
+    driver: bridge

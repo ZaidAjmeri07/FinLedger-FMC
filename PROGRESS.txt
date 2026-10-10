@@ -1,0 +1,71 @@
+FINLEDGER - BUILD PROGRESS
+Last updated: 2026-10-06
+Reference: FinLedger.md (build order, section 17)
+
+============================================================
+COMPLETED
+============================================================
+
+[1] PROJECT SCAFFOLDING & DEPENDENCIES
+    - Full folder structure created per FinLedger.md section 12
+    - Server: express, mongoose, dotenv, bcrypt, jsonwebtoken, cors, node-cron, pdfkit, nodemon
+    - Client: react 19, vite 8, tailwindcss v4, axios, react-router-dom, recharts
+
+[2] DATABASE MODELS (all 5, per section 9 data model)
+    - User.js (admin | accountant, business multi-tenant ref)
+    - Customer.js (name, email, phone, address, business index)
+    - Invoice.js (sequential invoiceNumber, items, totals, payments, status)
+    - RecurringTemplate.js (customer, frequency, dueInDays, nextRunDate, active)
+    - Expense.js (title, amount, category, date, notes)
+
+[3] AUTHENTICATION & RBAC (Step 2 & 12)
+    - middleware/auth.js (JWT Bearer token verification)
+    - middleware/roles.js (requireRole("admin") access guards)
+    - controllers/auth.js & routes/auth.js (register, login, me)
+    - controllers/team.js & routes/team.js (team listing, invite accountant, remove member)
+
+[4] BUSINESS & FINANCIAL SERVICES (Step 4, 7, 8, 9, 11)
+    - services/finance.js (totals, payment status, aging buckets 1-30/31-60/61+, monthly cash flow in vs out)
+    - services/recurring.js (scheduled invoice generator & getNextInvoiceNumber)
+    - services/pdf.js (PDFKit invoice generator streamed directly)
+    - jobs/scheduler.js (node-cron daily run + boot check)
+
+[5] REST API ENDPOINTS (Steps 3, 4, 5, 6, 7, 8, 9, 11, 12)
+    - /api/customers (CRUD with admin delete)
+    - /api/invoices (CRUD, /payments, /pdf download stream)
+    - /api/expenses (CRUD with category & date range filters)
+    - /api/recurring (CRUD, /run-now manual trigger)
+    - /api/dashboard (/summary, /cashflow)
+    - /api/receivables (/overdue with aging cohorts)
+    - /api/reports (/expenses-by-category, /cashflow)
+    - /api/team (/team listing, add accountant, delete member)
+
+[6] SEED DATA SCRIPT (Step 10)
+    - server/src/seed/seed.js (Admin: demo@finledger.com, Accountant: accountant@finledger.com, 5 customers, 15 invoices across statuses, 20 expenses across 4 months, 2 recurring templates)
+
+[7] FRONTEND APPLICATION (Steps 14)
+    - Rich modern dark design system with Plus Jakarta Sans & glassmorphism in index.css
+    - api/axios.js (JWT interceptor + automatic authorization headers)
+    - context/AuthContext.jsx (session state, persistence, role check)
+    - components/Navbar.jsx & Sidebar.jsx (role-aware navigation)
+    - components/ProtectedRoute.jsx & RoleGate.jsx
+    - components/StatCard.jsx & StatusBadge.jsx
+    - components/charts (CashflowChart.jsx, CategoryPie.jsx, AgingBars.jsx)
+    - components forms (InvoiceForm.jsx, PaymentForm.jsx, ExpenseForm.jsx, RecurringForm.jsx)
+    - pages (Login, Register, Dashboard, Customers, Invoices, InvoiceEditor, InvoiceDetail, Recurring, Expenses, Receivables, Reports, Team)
+    - App.jsx (React Router routing and layout wiring)
+
+[8] DEVOPS & CI (Step 13)
+    - docker-compose.yml (mongo, server, client services)
+    - server/Dockerfile
+    - client/Dockerfile & client/nginx.conf
+    - .github/workflows/ci.yml (Node 20 build and test matrix)
+
+============================================================
+ACTIVE LOCAL RUNTIME STATUS
+============================================================
+
+  Client (Vite): http://localhost:5173/   [RUNNING - HTTP 200]
+  Server (API):  http://localhost:5000/   [RUNNING - /api/health OK]
+
+  Current Public IP: 47.247.94.97 (Needs to be added in MongoDB Atlas Network Access if not already done)
